@@ -1,5 +1,5 @@
-from azure_connector import get_resource_groups
-from report_generator import save_report
+from .azure_connector import get_resource_groups
+from .report_generator import save_report
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.storage import StorageManagementClient
 
@@ -49,8 +49,4 @@ def check_public_storage_access(subscription_id):
     return results
 
 
-if __name__ == "__main__":
-    print("🔍 Running public access check on storage accounts...")
-    results = check_public_storage_access(SUBSCRIPTION_ID)
-    save_report(results)
-    print("✅ Done. Results saved in reports/assessment_report.json")
+

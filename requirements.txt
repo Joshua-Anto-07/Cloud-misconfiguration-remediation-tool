@@ -1,3 +1,4 @@
 azure-mgmt-storage
 azure-mgmt-resource
+azure-identity
 

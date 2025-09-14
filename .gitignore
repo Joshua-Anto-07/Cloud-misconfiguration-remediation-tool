@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+/venv/
+/venv2/
+
+# Generated reports
+/reports/
+/frontend/
+
+# VSCode
+.vscode/
