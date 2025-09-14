@@ -1,0 +1,10 @@
+[
+    {
+        "check_id": "CIS-1.1",
+        "description": "Ensure no Storage Account allows public access",
+        "status": "pass",
+        "resource_group": "firstcheck",
+        "storage_account": "storagefor31",
+        "remediation": "Set `allow_blob_public_access` to false on the storage account"
+    }
+]
