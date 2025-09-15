@@ -14,3 +14,12 @@ __pycache__/
 
 # VSCode
 .vscode/
+
+# Terraform files
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
+
+# Config file
+config.yaml
