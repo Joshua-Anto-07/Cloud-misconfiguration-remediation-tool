@@ -1,4 +1,4 @@
 azure-mgmt-storage
 azure-mgmt-resource
 azure-identity
-
+PyYAML==6.0.1

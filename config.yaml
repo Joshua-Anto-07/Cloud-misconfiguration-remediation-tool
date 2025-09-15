@@ -1,0 +1,55 @@
+rules:
+  - id: "CIS-3.1"
+    description: "Secure transfer required must be enabled"
+    remediation: "Enable 'enable_https_traffic_only' on the storage account"
+    resource_type: "storage_account"
+    properties:
+      enable_https_traffic_only:
+        expected: True
+        fetch_config:
+          type: nested
+          path: enable_https_traffic_only
+
+  - id: "CIS-3.2"
+    description: "Enable Infrastructure Encryption for Each Storage Account"
+    remediation: "Set 'encryption.require_infrastructure_encryption' to true on the storage account"
+    resource_type: "storage_account"
+    properties:
+      encryption.require_infrastructure_encryption:
+        expected: True
+        fetch_config:
+          type: nested
+          path: encryption.require_infrastructure_encryption
+
+  - id: "CIS-3.7"
+    description: "Public access level must be disabled for storage accounts with blob containers"
+    remediation: "Set 'allow_blob_public_access' to false"
+    resource_type: "storage_account"
+    properties:
+      allow_blob_public_access:
+        expected: False
+        fetch_config:
+          type: nested
+          path: allow_blob_public_access
+
+  - id: "CIS-3.8"
+    description: "Default Network Access Rule for Storage Accounts must be Set to Deny"
+    remediation: "Set 'network_rule_set.default_action' to Deny"
+    resource_type: "storage_account"
+    properties:
+      network_rule_set.default_action:
+        expected: "Deny"
+        fetch_config:
+          type: nested
+          path: network_rule_set.default_action
+
+  - id: "CIS-3.9"
+    description: "Allow Azure services on the trusted services list to access this storage account must be Enabled"
+    remediation: "Set 'network_rule_set.bypass' to AzureServices"
+    resource_type: "storage_account"
+    properties:
+      network_rule_set.bypass:
+        expected: "AzureServices"
+        fetch_config:
+          type: nested
+          path: network_rule_set.bypass
