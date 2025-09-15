@@ -1,3 +1,4 @@
+
 # Python
 __pycache__/
 *.pyc
@@ -16,3 +17,4 @@ reports/
 
 # Frontend
 frontend/
+
