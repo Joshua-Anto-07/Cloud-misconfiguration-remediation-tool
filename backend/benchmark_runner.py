@@ -1,56 +1,73 @@
-from azure_connector import get_resource_groups
-from report_generator import save_report
+import yaml
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.storage import StorageManagementClient
+from .azure_connector import get_resource_groups
 
-SUBSCRIPTION_ID = "8bbab1a3-5bc8-408e-ba14-568523743538"  # Replace this with your actual subscription ID
+SUBSCRIPTION_ID = "8bbab1a3-5bc8-408e-ba14-568523743538" 
 
-def check_public_storage_access(subscription_id):
-    credential = DefaultAzureCredential()
-    storage_client = StorageManagementClient(credential, subscription_id)
+def load_rules():
+    with open('config.yaml', 'r') as f:
+        return yaml.safe_load(f)['rules']
 
+def compare_values(actual, expected):
+    
+    if isinstance(expected, dict):
+        if not isinstance(actual, dict):
+            return False
+        return all(compare_values(actual.get(k), v) for k, v in expected.items())
+    elif isinstance(expected, list):
+        return isinstance(actual, list) and all(item in actual for item in expected)
+    else:
+        return actual == expected
+
+def get_nested_property(obj, prop_path):
+    if not prop_path:
+        return obj
+    current = obj
+    for part in prop_path.split('.'):
+        if current is None:
+            return None
+        current = getattr(current, part, None)
+    return current
+
+def evaluate_property(account, fetch_config):
+    try:
+        if fetch_config['type'] == 'nested':
+            value = get_nested_property(account, fetch_config.get('path'))
+            if value is None and hasattr(account, 'properties'):
+                value = get_nested_property(account.properties, fetch_config.get('path'))
+            return value
+    except Exception as e:
+        print(f"Error evaluating fetch_config {fetch_config}: {e}")
+        return None
+    return None
+
+def run_benchmarks():
+    rules = load_rules()
     results = []
-    resource_groups = get_resource_groups(subscription_id)
+    credential = DefaultAzureCredential()
+    storage_client = StorageManagementClient(credential, SUBSCRIPTION_ID)
+    resource_groups = get_resource_groups(SUBSCRIPTION_ID)
 
-    for rg in resource_groups:
-        print(f"Checking resource group: {rg}")
-        try:
-            storage_accounts = storage_client.storage_accounts.list_by_resource_group(rg)
-        except Exception as e:
-            print(f"Error listing storage accounts in {rg}: {e}")
-            continue
-
-        for account in storage_accounts:
-            name = account.name
-            print(f"  - Checking storage account: {name}")
-
-            try:
-                allow_public_access = account.allow_blob_public_access
-
-                if allow_public_access is False:
-                    status = "pass"
-                elif allow_public_access is True:
-                    status = "fail"
-                else:
-                    status = "unknown"
-            except Exception as e:
-                print(f"    Error retrieving access info for {name}: {e}")
-                status = "unknown"
-
-            results.append({
-                "check_id": "CIS-1.1",
-                "description": "Ensure no Storage Account allows public access",
-                "status": status,
-                "resource_group": rg,
-                "storage_account": name,
-                "remediation": "Set `allow_blob_public_access` to false on the storage account"
-            })
-
+    for rule in rules:
+        if rule['resource_type'] == 'storage_account':
+            for rg in resource_groups:
+                print(f"Checking resource group: {rg} for rule: {rule['id']}")
+                storage_accounts = storage_client.storage_accounts.list_by_resource_group(rg)
+                for account in storage_accounts:
+                    for prop, config in rule['properties'].items():
+                        actual = evaluate_property(account, config['fetch_config'])
+                        status = "pass" if compare_values(actual, config['expected']) else "fail"
+                        
+                        results.append({
+                            "check_id": rule['id'],
+                            "description": rule['description'],
+                            "status": status,
+                            "resource_group": rg,
+                            "storage_account": account.name,
+                            "property": prop,
+                            "actual": actual,
+                            "expected": config['expected'],
+                            "remediation": rule['remediation']
+                        })
     return results
-
-
-if __name__ == "__main__":
-    print("🔍 Running public access check on storage accounts...")
-    results = check_public_storage_access(SUBSCRIPTION_ID)
-    save_report(results)
-    print("✅ Done. Results saved in reports/assessment_report.json")
