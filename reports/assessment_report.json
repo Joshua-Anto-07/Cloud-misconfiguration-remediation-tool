@@ -1,10 +1,57 @@
 [
     {
-        "check_id": "CIS-1.1",
-        "description": "Ensure no Storage Account allows public access",
+        "check_id": "CIS-3.1",
+        "description": "Secure transfer required must be enabled",
+        "status": "fail",
+        "resource_group": "firstcheck",
+        "storage_account": "storagefor31",
+        "property": "enable_https_traffic_only",
+        "actual": false,
+        "expected": true,
+        "remediation": "Enable 'enable_https_traffic_only' on the storage account"
+    },
+    {
+        "check_id": "CIS-3.2",
+        "description": "Enable Infrastructure Encryption for Each Storage Account",
+        "status": "fail",
+        "resource_group": "firstcheck",
+        "storage_account": "storagefor31",
+        "property": "encryption.require_infrastructure_encryption",
+        "actual": false,
+        "expected": true,
+        "remediation": "Set 'encryption.require_infrastructure_encryption' to true on the storage account"
+    },
+    {
+        "check_id": "CIS-3.7",
+        "description": "Public access level must be disabled for storage accounts with blob containers",
+        "status": "fail",
+        "resource_group": "firstcheck",
+        "storage_account": "storagefor31",
+        "property": "allow_blob_public_access",
+        "actual": true,
+        "expected": false,
+        "remediation": "Set 'allow_blob_public_access' to false"
+    },
+    {
+        "check_id": "CIS-3.8",
+        "description": "Default Network Access Rule for Storage Accounts must be Set to Deny",
+        "status": "fail",
+        "resource_group": "firstcheck",
+        "storage_account": "storagefor31",
+        "property": "network_rule_set.default_action",
+        "actual": "Allow",
+        "expected": "Deny",
+        "remediation": "Set 'network_rule_set.default_action' to Deny"
+    },
+    {
+        "check_id": "CIS-3.9",
+        "description": "Allow Azure services on the trusted services list to access this storage account must be Enabled",
         "status": "pass",
         "resource_group": "firstcheck",
         "storage_account": "storagefor31",
-        "remediation": "Set `allow_blob_public_access` to false on the storage account"
+        "property": "network_rule_set.bypass",
+        "actual": "AzureServices",
+        "expected": "AzureServices",
+        "remediation": "Set 'network_rule_set.bypass' to AzureServices"
     }
 ]
